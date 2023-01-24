@@ -1,0 +1,50 @@
+server:
+  port: 9023
+  servlet:
+    context-path: /${spring.application.name}
+eureka:
+  instance:
+    hostname: cloud-gateway-service
+  client:
+    service-url:
+      fetch-registry: true
+      register-with-eureka: true
+      defaultZone: http://127.0.0.1:8766/eureka/
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      globalcors: # 全局的跨域处理
+        add-to-simple-url-handler-mapping: true # 解决options请求被拦截问题
+      default-filters:
+        - DedupeResponseHeader=Vary Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: test
+          uri: https://baidu.com/
+          predicates:
+            - Path=/users/asd/**,
+            - Method=GET
+          filters:
+            - StripPrefix=2
+
+        - id: support
+          uri: lb://servicesuppot
+          predicates:
+            - Path=/asd/**,
+            - Method=GET
+          filters:
+            - TEST
+            - RewritePath=/asd/?(?<segment>.*), /support/$\{segment}   #loadblance使得asd变成了support
+
+        - id: service
+          uri: lb://servicesuser
+          predicates:
+            - Path=/gateway/l/**,
+          filters:
+            - RewritePath=/gateway/l/?(?<segment>.*), /Service/l/$\{segment}
+            - TEST
+
