@@ -1,0 +1,33 @@
+server:
+  port: 8073
+spring:
+  application:
+    name: servicesuser
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        acknowledge-mode: manual
+  cloud:
+    stream:
+      binders:
+        defaultRabbit:
+          type: rabbit
+      bindings:
+        send-in-0:
+          destination: pomExchange
+          content-type: text/plain
+          binder: defaultRabbit
+          group: Ti1
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8766/eureka
+  instance:
+    hostname: localhost
+
